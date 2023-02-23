@@ -1,0 +1,17 @@
+@import "./variabels";
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #E5E5E5;
+  overflow: hidden;
+}
+
+a {
+  text-decoration: none !important;
+}
+
+.btn-primary {
+  background-color: $primary !important;
+  border-color: $primary !important;
+}

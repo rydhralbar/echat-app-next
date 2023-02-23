@@ -1,0 +1,32 @@
+.allForm {
+  height: 100vh; 
+  align-items: center 
+}
+
+.wrapper {
+  background: #FFFFFF;
+  width: 31%;
+  padding: 26px;
+  border-radius: 8px;
+}
+
+.registerButton {
+  width: 100%;
+  border-radius: 20px
+}
+
+.registerButton:hover {
+  background: #FFFFFF !important;
+  color: black;
+}
+
+.googleButton {
+  width: 100%;
+  border-radius: 20px;
+  border-color: #B30000;
+}
+
+.googleButton:hover {
+  background: #B30000;
+  color: #FFFFFF;
+}
