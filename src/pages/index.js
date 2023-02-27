@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import styles from "@/styles/pages/Home.module.scss";
 import {
@@ -11,11 +11,92 @@ import {
   TextField,
   Typography,
   ListItemText,
+  Box,
 } from "@mui/material";
+import Drawer from "@mui/material/Drawer";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import SendRoundedIcon from "@mui/icons-material/SendRounded";
+import {
+  CheckBoxOutlineBlankOutlined,
+  DraftsOutlined,
+  InboxOutlined,
+  MailOutline,
+  ReceiptOutlined,
+} from "@material-ui/icons";
 import { Container } from "@mui/system";
+import { MdArrowBack } from "react-icons/md";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { database } from "@/utils/firebase";
+import { ref, onValue } from "firebase/database";
+import * as useDb from "@/utils/firebaseDb";
+
+const data = [
+  { name: "Inbox", icon: <InboxOutlined /> },
+  { name: "Outbox", icon: <CheckBoxOutlineBlankOutlined /> },
+  { name: "Sent mail", icon: <MailOutline /> },
+  { name: "Draft", icon: <DraftsOutlined /> },
+  { name: "Trash", icon: <ReceiptOutlined /> },
+];
+
+const ID = new Date().getTime();
 
 const Home = () => {
-  const [isClicked, setIsClicked] = useState(false);
+  const [isClickedChat, setIsClickedChat] = useState(false);
+  const [isClickedDots, setIsClickedDots] = useState(false);
+  const [selectedChat, setSelectedChat] = useState(false);
+  const [keyword, setKeyword] = useState("");
+  const [messageList, setMessageList] = useState({});
+  const [messageKey, setMessageKey] = useState([]);
+  const [usersList, setUsersList] = useState({});
+  const [usersKey, setUsersKey] = useState([]);
+
+  useEffect(() => {
+    useDb.getData("users", (snapshot) => {
+      const data = snapshot.val();
+
+      if (data) {
+        setUsersList(data);
+        setUsersKey(Object.keys(data));
+      }
+    });
+
+    useDb.getData(`messages/user_1`, (snapshot) => {
+      const data = snapshot.val();
+
+      if (data) {
+        setMessageList(data);
+        setMessageKey(Object.keys(data));
+      }
+    });
+  }, []);
+
+  const sendMessage = () => {
+    useDb.sendData("messages", {
+      [`user_1`]: {
+        ...messageList,
+        [new Date().getTime()]: {
+          text: keyword,
+          image: "",
+          timestamp: new Date().getTime(),
+          user_id: ID,
+          photo: "",
+          sender: "Albar",
+        },
+      },
+    });
+    setKeyword("");
+  };
+
+  const getList = () => (
+    <div style={{ width: 250 }} onClick={() => setOpen(false)}>
+      {data.map((item, index) => (
+        <ListItem button key={index}>
+          <ListItemIcon>{item.icon}</ListItemIcon>
+          <ListItemText primary={item.name} />
+        </ListItem>
+      ))}
+    </div>
+  );
 
   return (
     <>
@@ -27,18 +108,19 @@ const Home = () => {
       </Head>
       <main>
         <Grid container height="100vh">
-          <Grid
-            item
-            lg={4}
-            sx={{
-              boxShadow: "2px 2px 5px 0px rgba(0,0,0,0.75)",
-              background: "linear-gradient(#B30000 21.8%, #FFFFFF 10%);",
-            }}
-          >
-            <Container sx={{ pt: "15px" }}>
-              <Typography variant="h2" className={styles.textLogo}>
-                eChat
-              </Typography>
+          <Grid item lg={4} className={styles.leftSide}>
+            <Container className={styles.leftWrapper}>
+              <Container className={styles.navProfile}>
+                <Avatar
+                  alt="Ragnarok"
+                  src="/static/images/avatar/1.jpg"
+                  sx={{ marginRight: "15px" }}
+                />
+                <Typography variant="h2" className={styles.textLogo}>
+                  eChat
+                </Typography>
+                {/* <BsThreeDotsVertical onClick={() => setIsClickedDots(true)} /> */}
+              </Container>
               <TextField
                 id="outlined-basic"
                 placeholder="Search or start new chat"
@@ -52,34 +134,38 @@ const Home = () => {
                     </InputAdornment>
                   ),
                 }}
-                sx={{
-                  my: "20px",
-                  backgroundColor: "white",
-                  borderRadius: "5px",
-                }}
+                className={styles.textfield}
               />
 
               <List className={styles.listChats}>
-                {[...new Array(15)].map((item, key) => (
+                {usersKey.map((item, key) => (
                   <ListItem
                     alignItems="flex-start"
                     sx={{ paddingLeft: "0px" }}
                     button
+                    selected={selectedChat === key}
                     key={key}
+                    onClick={() => {
+                      setIsClickedChat(true);
+                      setSelectedChat(usersList[item]?.user_id);
+                    }}
                   >
                     <ListItemAvatar>
-                      <Avatar alt="Xavier" src="/static/images/avatar/1" />
+                      <Avatar
+                        alt={usersList[item]?.name}
+                        src={usersList[item]?.photo}
+                      />
                     </ListItemAvatar>
                     <ListItemText
-                      primary="Charles Xavier"
+                      primary={usersList[item]?.name}
                       secondary={
                         <Typography
-                          sx={{ display: "inline" }}
+                          sx={{ display: "inline", color: "green" }}
                           component="span"
                           variant="body2"
                           color="text.primary"
                         >
-                          Hello Doctor
+                          Online
                         </Typography>
                       }
                     />
@@ -89,9 +175,119 @@ const Home = () => {
             </Container>
           </Grid>
           <Grid item-lg={8}>
-            <Typography className={styles.rightSideSlogan}>
-              Please select a chat to start messaging
-            </Typography>
+            {!isClickedChat && (
+              <Typography className={styles.rightSideSlogan}>
+                Please select a chat to start messaging
+              </Typography>
+            )}
+
+            {isClickedChat && (
+              <React.Fragment>
+                <Box
+                  sx={{
+                    backgroundColor: "#B30000",
+                    px: 1.8,
+                    py: 1.5,
+                    width: "53.33rem",
+                    display: "flex",
+                  }}
+                >
+                  <Box display="flex" gap={2}>
+                    <MdArrowBack
+                      className={styles.arrowBack}
+                      onClick={() => setIsClickedChat(false)}
+                    />
+                    <Avatar
+                      alt={usersList[selectedChat]?.name}
+                      src={usersList[selectedChat]?.photo}
+                      sx={{ width: "50px", height: "50px" }}
+                    />
+
+                    <div>
+                      <Typography color="white">
+                        {usersList[selectedChat]?.name}
+                      </Typography>
+                      <Typography
+                        sx={{ display: "inline", color: "#33ff33" }}
+                        component="span"
+                        variant="body2"
+                        color="text.primary"
+                      >
+                        Online
+                      </Typography>
+                    </div>
+                    <BsThreeDotsVertical
+                      className={styles.threeDotsRightSide}
+                      onClick={() => setIsClickedDots(true)}
+                    />
+                    {isClickedDots && (
+                      <Drawer
+                        open={open}
+                        anchor={"right"}
+                        onClose={() => setIsClickedDots(false)}
+                      >
+                        {getList()}
+                      </Drawer>
+                    )}
+                  </Box>
+                </Box>
+
+                <Box>
+                  <Box
+                    sx={{
+                      height: "75vh",
+                      overflowY: "auto",
+                    }}
+                  >
+                    {messageKey?.map((item, key) => {
+                      if (messageList[item]?.user_id === ID) {
+                        return (
+                          <div className="chat chat-end mt-2 mb-2" key={key}>
+                            <div className="chat-bubble">
+                              {messageList[item]?.text}
+                            </div>
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="chat chat-start mt-4 mb-2" key={key}>
+                            <div className="chat-bubble">
+                              {messageList[item]?.text}
+                            </div>
+                          </div>
+                        );
+                      }
+                    })}
+                  </Box>
+                </Box>
+                <Box className={styles.sendfield}>
+                  <TextField
+                    id="outlined-basic"
+                    placeholder="Type your message..."
+                    variant="outlined"
+                    fullWidth
+                    onChange={(e) => setKeyword(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        sendMessage();
+                      }
+                    }}
+                    value={keyword}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment
+                          sx={{ cursor: "pointer" }}
+                          position="start"
+                          onClick={sendMessage}
+                        >
+                          <SendRoundedIcon />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Box>
+              </React.Fragment>
+            )}
           </Grid>
         </Grid>
       </main>

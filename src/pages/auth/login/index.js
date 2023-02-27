@@ -27,16 +27,61 @@ const Register = () => {
           <div className={`d-flex justify-content-center ${styles.allForm}`}>
             <div className={styles.wrapper}>
               <div>
-                <MdArrowBack onClick={() => router.back()} />
-                <h3 className="text-center">Login</h3>
-                <hr />
+                <MdArrowBack
+                  onClick={() => router.back()}
+                  style={{ width: "25px", height: "25px" }}
+                />
+                <h3
+                  className="text-center"
+                  style={{ fontSize: "30px", marginBottom: "20px" }}
+                >
+                  Login
+                </h3>
+                <hr className="mb-3" />
               </div>
-              {/* <div class="alert alert-success" role="alert">
-                Login is succesfully, please wait
-              </div> */}
-              <div class="alert alert-danger" role="alert">
-                Login failed
-              </div>
+
+              {isSuccess && (
+                <div className="alert alert-success shadow-lg">
+                  <div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="stroke-current flex-shrink-0 h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>Login successful! Please wait</span>
+                  </div>
+                </div>
+              )}
+
+              {!isSuccess && (
+                <div className="alert alert-error shadow-lg">
+                  <div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="stroke-current flex-shrink-0 h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>Error! Task failed successfully.</span>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <div className="mb-3">
                   <label className="form-label">Email address</label>
@@ -58,6 +103,9 @@ const Register = () => {
                   <button
                     type="submit"
                     className={`btn btn-primary ${styles.loginButton}`}
+                    onClick={() => {
+                      setIsSuccess(true);
+                    }}
                   >
                     Login
                   </button>
@@ -65,6 +113,9 @@ const Register = () => {
                   <button
                     type="submit"
                     className={`btn ${styles.googleButton}`}
+                    onClick={() => {
+                      setIsSuccess(false);
+                    }}
                   >
                     <FcGoogle className="me-2" />
                     Google

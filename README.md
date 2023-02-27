@@ -1,3 +1,5 @@
+eChat is an application for virtual chatting, in addition to eChat chatting you can also make calls.
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
