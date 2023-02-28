@@ -55,7 +55,7 @@ const Register = () => {
             user_id: user?.uid,
             photo: user?.photoURL,
             name: name,
-            is_online: true,
+            is_online: false,
           },
         });
 
@@ -95,14 +95,14 @@ const Register = () => {
             user_id: user?.uid,
             photo: user?.photoURL,
             name: user?.displayName,
-            is_online: true,
+            is_online: false,
           },
         });
 
         setIsSuccess(true);
         setTimeout(() => {
           router.replace("/auth/login");
-        }, 1600);
+        }, 800);
       })
       .catch((error) => {
         setIsLoading(false);
@@ -116,7 +116,7 @@ const Register = () => {
         const credential = GoogleAuthProvider?.credentialFromError(error);
 
         setIsError(true);
-        setErrorMsg(`Mantap ${error?.code === NaN ? "" : errorMessage}`);
+        setErrorMsg(errorMessage);
       });
   };
 
@@ -222,6 +222,11 @@ const Register = () => {
                     className="form-control"
                     placeholder="Type your new password"
                     onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        registerManual();
+                      }
+                    }}
                   />
                 </div>
                 <div>

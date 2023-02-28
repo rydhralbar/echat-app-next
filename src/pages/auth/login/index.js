@@ -1,17 +1,133 @@
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { MdArrowBack } from "react-icons/md";
 import styles from "@/styles/pages/Login.module.scss";
-import { useState } from "react";
 import { useRouter } from "next/router";
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+import { useDispatch, useSelector } from "react-redux";
+import * as profileReducer from "@/stores/reducer/profile";
+import * as useDb from "@/utils/firebaseDb";
+import { auth } from "@/utils/firebase";
 
-const Register = () => {
+const provider = new GoogleAuthProvider();
+
+const Login = () => {
+  const [uuid, setUuid] = useState();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [usersList, setUsersList] = useState({});
+  const [errorMsg, setErrorMsg] = useState("");
 
   const router = useRouter();
+  // const dispatch = useDispatch();
+  // const selector = useSelector((state) => state.profile);
+
+  useEffect(() => {
+    const isLogin = localStorage.getItem("user");
+    if (isLogin) {
+      router.replace("/");
+    }
+    useDb.getData("users", (snapshot) => {
+      const data = snapshot.val();
+
+      if (data) {
+        setUsersList(data);
+      }
+    });
+  }, []);
+
+  const loginManual = () => {
+    setIsLoading(true);
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+
+        useDb.sendData("users", {
+          ...usersList,
+          [user.uid]: {
+            ...usersList[user.uid],
+            ...{
+              is_online: true,
+            },
+          },
+        });
+
+        setIsError(false);
+        localStorage.setItem("user", JSON.stringify(user));
+        // dispatch(profileReducer.setProfile(JSON.stringify(user)));
+
+        setIsSuccess(true);
+        setTimeout(() => {
+          router.replace("/");
+        }, 800);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        const errorCode = error?.code?.slice(5).split("-").join(" ");
+        const errorMessage =
+          errorCode?.charAt(0).toUpperCase() + errorCode?.slice(1);
+        // const errorMessage = error?.message;
+
+        setIsError(true);
+        setIsSuccess(false);
+        setErrorMsg(errorMessage);
+      });
+  };
+
+  const loginGoogle = () => {
+    setIsLoading(true);
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        setIsLoading(false);
+        setIsError(false);
+
+        // const token = credential?.accessToken;
+        const user = result?.user;
+
+        console.log(user);
+
+        useDb.sendData("users", {
+          ...usersList,
+          [user.uid]: {
+            ...usersList[user.uid],
+            ...{
+              is_online: true,
+            },
+          },
+        });
+
+        // dispatch(profileReducer.setProfile(JSON.stringify(user)));
+        localStorage.setItem("user", JSON.stringify(user));
+        setIsSuccess(true);
+        setTimeout(() => {
+          router.replace("/");
+        }, 1000);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        setIsSuccess(false);
+        const errorCode = error?.code?.slice(5).split("-").join(" ");
+        const errorMessage =
+          errorCode?.charAt(0).toUpperCase() + errorCode?.slice(1);
+
+        // const errorMessage = error?.message;
+        const email = error?.customData?.email;
+        const credential = GoogleAuthProvider?.credentialFromError(error);
+
+        setIsError(true);
+        setErrorMsg(errorMessage);
+      });
+  };
 
   return (
     <>
@@ -61,7 +177,7 @@ const Register = () => {
                 </div>
               )}
 
-              {!isSuccess && (
+              {isError && (
                 <div className="alert alert-error shadow-lg">
                   <div>
                     <svg
@@ -77,7 +193,7 @@ const Register = () => {
                         d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    <span>Error! Task failed successfully.</span>
+                    <span>{errorMsg}</span>
                   </div>
                 </div>
               )}
@@ -89,6 +205,13 @@ const Register = () => {
                     type="text"
                     className="form-control"
                     placeholder="Type your email"
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        setErrorMsg("Email cannot be empty");
+                      } else {
+                        setEmail(e.target.value);
+                      }
+                    }}
                   />
                 </div>
                 <div className="mb-4">
@@ -97,25 +220,29 @@ const Register = () => {
                     type="password"
                     className="form-control"
                     placeholder="Type your new password"
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        loginManual();
+                      }
+                    }}
                   />
                 </div>
                 <div>
                   <button
                     type="submit"
                     className={`btn btn-primary ${styles.loginButton}`}
-                    onClick={() => {
-                      setIsSuccess(true);
-                    }}
+                    onClick={loginManual}
+                    disabled={isLoading}
                   >
-                    Login
+                    {isLoading ? "Loading..." : "Login"}
                   </button>
                   <p className="mt-3 mb-3 text-center">Or login with</p>
                   <button
                     type="submit"
                     className={`btn ${styles.googleButton}`}
-                    onClick={() => {
-                      setIsSuccess(false);
-                    }}
+                    onClick={loginGoogle}
+                    disabled={isLoading}
                   >
                     <FcGoogle className="me-2" />
                     Google
@@ -130,4 +257,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;

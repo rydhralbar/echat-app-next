@@ -16,59 +16,97 @@ import {
 import Drawer from "@mui/material/Drawer";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
-import {
-  CheckBoxOutlineBlankOutlined,
-  DraftsOutlined,
-  InboxOutlined,
-  MailOutline,
-  ReceiptOutlined,
-} from "@material-ui/icons";
+import DeleteIcon from "@mui/icons-material/Delete";
+import LogoutIcon from "@mui/icons-material/Logout";
+import BlockIcon from "@mui/icons-material/Block";
+import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
+import PersonIcon from "@mui/icons-material/Person";
+import FlagIcon from "@mui/icons-material/Flag";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash";
+import ImageIcon from "@mui/icons-material/Image";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import LanguageIcon from "@mui/icons-material/Language";
+import HelpIcon from "@mui/icons-material/Help";
+import SettingsIcon from "@mui/icons-material/Settings";
+import GroupIcon from "@mui/icons-material/Group";
 import { Container } from "@mui/system";
 import { MdArrowBack } from "react-icons/md";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { database } from "@/utils/firebase";
-import { ref, onValue } from "firebase/database";
 import * as useDb from "@/utils/firebaseDb";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/router";
+import Link from "next/link";
+import { ConstructionOutlined } from "@mui/icons-material";
 
-const data = [
-  { name: "Inbox", icon: <InboxOutlined /> },
-  { name: "Outbox", icon: <CheckBoxOutlineBlankOutlined /> },
-  { name: "Sent mail", icon: <MailOutline /> },
-  { name: "Draft", icon: <DraftsOutlined /> },
-  { name: "Trash", icon: <ReceiptOutlined /> },
+const rightData = [
+  { name: "Change wallpaper", icon: <ImageIcon /> },
+  { name: "Add to group", icon: <GroupAddIcon /> },
+  { name: "Mute notification", icon: <NotificationsOffIcon /> },
+  { name: "Clear chat", icon: <DeleteIcon /> },
+  { name: "Restore deleted chat", icon: <RestoreFromTrashIcon /> },
+  { name: "Block chat", icon: <BlockIcon /> },
+  { name: "Report user", icon: <FlagIcon /> },
+];
+
+const leftData = [
+  { name: "Profile", icon: <PersonIcon /> },
+  { name: "Notification", icon: <NotificationsIcon /> },
+  { name: "Web language", icon: <LanguageIcon /> },
+  { name: "Help", icon: <HelpIcon /> },
+  { name: "Settings", icon: <SettingsIcon /> },
+  { name: "Invite a friend", icon: <GroupIcon /> },
+  { name: "Logout", icon: <LogoutIcon /> },
 ];
 
 const ID = new Date().getTime();
 
 const Home = () => {
+  const [profile, setProfile] = useState(null);
+  const [uuid, setUuid] = useState("");
   const [isClickedChat, setIsClickedChat] = useState(false);
   const [isClickedDots, setIsClickedDots] = useState(false);
+  const [isClickedProfile, setIsClickedProfile] = useState(false);
   const [selectedChat, setSelectedChat] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [messageList, setMessageList] = useState({});
   const [messageKey, setMessageKey] = useState([]);
+  const [messageFilter, setMessageFilter] = useState([]);
   const [usersList, setUsersList] = useState({});
   const [usersKey, setUsersKey] = useState([]);
 
+  const router = useRouter();
+  // const selector = useSelector((state) => state.profile);
+
   useEffect(() => {
-    useDb.getData("users", (snapshot) => {
-      const data = snapshot.val();
+    const profile = JSON.parse(localStorage.getItem("user"));
+    if (!localStorage.getItem("user")) {
+      router.replace("/auth");
+    } else {
+      const uuidProfile = JSON.parse(localStorage.getItem("user")).uid;
 
-      if (data) {
-        setUsersList(data);
-        setUsersKey(Object.keys(data));
-      }
-    });
+      setUuid(uuidProfile);
+      setProfile(profile);
 
-    useDb.getData(`messages/user_1`, (snapshot) => {
-      const data = snapshot.val();
+      useDb.getData("users", (snapshot) => {
+        const data = snapshot.val();
 
-      if (data) {
-        setMessageList(data);
-        setMessageKey(Object.keys(data));
-      }
-    });
-  }, []);
+        if (data) {
+          setUsersList(data);
+          setUsersKey(Object.keys(data)?.filter((item) => item !== uuid));
+        }
+      });
+
+      useDb.getData(`messages/user_1`, (snapshot) => {
+        const data = snapshot.val();
+
+        if (data) {
+          setMessageList(data);
+          setMessageKey(Object.keys(data));
+        }
+      });
+    }
+  }, [selectedChat]);
 
   const sendMessage = () => {
     useDb.sendData("messages", {
@@ -78,23 +116,62 @@ const Home = () => {
           text: keyword,
           image: "",
           timestamp: new Date().getTime(),
-          user_id: ID,
+          user_id: uuid,
           photo: "",
           sender: "Albar",
+          target_id: selectedChat,
         },
       },
     });
+
+    useDb.getData(`messages/user_1`, (snapshot) => {
+      const data = snapshot.val();
+
+      if (data) {
+        const filterChat = Object.keys(data).map((item) => data[item]);
+
+        setMessageFilter(
+          filterChat.filter(
+            (item) => item.target_id === selectedChat || item.target_id === uuid
+          )
+        );
+      }
+    });
+
     setKeyword("");
   };
 
-  const getList = () => (
-    <div style={{ width: 250 }} onClick={() => setOpen(false)}>
-      {data.map((item, index) => (
-        <ListItem button key={index}>
+  const rightDrawer = () => (
+    <div style={{ width: 250 }}>
+      {rightData.map((item, key) => (
+        <ListItem
+          button
+          key={key}
+          onClick={() => {
+            alert("Features not yet developed");
+          }}
+        >
           <ListItemIcon>{item.icon}</ListItemIcon>
           <ListItemText primary={item.name} />
         </ListItem>
       ))}
+    </div>
+  );
+
+  const leftDrawer = () => (
+    <div style={{ width: 250 }}>
+      {leftData.map((item, key) => {
+        <ListItem
+          button
+          key={key}
+          onClick={() => {
+            alert("Features not yet developed");
+          }}
+        >
+          <ListItemIcon>{item.icon}</ListItemIcon>
+          <ListItemText primary={item.name} />
+        </ListItem>;
+      })}
     </div>
   );
 
@@ -112,10 +189,25 @@ const Home = () => {
             <Container className={styles.leftWrapper}>
               <Container className={styles.navProfile}>
                 <Avatar
-                  alt="Ragnarok"
-                  src="/static/images/avatar/1.jpg"
-                  sx={{ marginRight: "15px" }}
+                  alt={profile?.displayName}
+                  src={profile?.photoURL}
+                  // src={`${
+                  //   selector?.profile?.payload?.photoURL
+                  //     ? selector?.profile?.payload?.photoURL
+                  //     : "/static/images/avatar/1.jpg"
+                  // }`}
+                  sx={{ marginRight: "15px", cursor: "pointer" }}
+                  onClick={() => setIsClickedProfile(true)}
                 />
+                {isClickedProfile && (
+                  <Drawer
+                    open={open}
+                    anchor={"left"}
+                    onClose={() => setIsClickedProfile(false)}
+                  >
+                    {leftDrawer()}
+                  </Drawer>
+                )}
                 <Typography variant="h2" className={styles.textLogo}>
                   eChat
                 </Typography>
@@ -148,6 +240,20 @@ const Home = () => {
                     onClick={() => {
                       setIsClickedChat(true);
                       setSelectedChat(usersList[item]?.user_id);
+
+                      const filterChat = messageKey?.map(
+                        (item) => messageList[item]
+                      );
+
+                      const selected_id = usersList[item]?.user_id;
+
+                      setMessageFilter(
+                        filterChat?.filter(
+                          (item) =>
+                            item?.target_id === selected_id ||
+                            item?.target_id === uuid
+                        )
+                      );
                     }}
                   >
                     <ListItemAvatar>
@@ -160,12 +266,16 @@ const Home = () => {
                       primary={usersList[item]?.name}
                       secondary={
                         <Typography
-                          sx={{ display: "inline", color: "green" }}
+                          sx={{
+                            display: "inline",
+                            color: `${
+                              usersList[item]?.is_online ? "#33ff33" : "#808080"
+                            }`,
+                          }}
                           component="span"
                           variant="body2"
-                          color="text.primary"
                         >
-                          Online
+                          {usersList[item]?.is_online ? "Online" : "Offline"}
                         </Typography>
                       }
                     />
@@ -208,12 +318,21 @@ const Home = () => {
                         {usersList[selectedChat]?.name}
                       </Typography>
                       <Typography
-                        sx={{ display: "inline", color: "#33ff33" }}
+                        sx={{
+                          display: "inline",
+                          color: `${
+                            usersList[selectedChat]?.is_online
+                              ? "#33ff33"
+                              : "#808080"
+                          }`,
+                        }}
                         component="span"
                         variant="body2"
                         color="text.primary"
                       >
-                        Online
+                        {usersList[selectedChat].is_online
+                          ? "Online"
+                          : "Offline"}
                       </Typography>
                     </div>
                     <BsThreeDotsVertical
@@ -226,7 +345,7 @@ const Home = () => {
                         anchor={"right"}
                         onClose={() => setIsClickedDots(false)}
                       >
-                        {getList()}
+                        {rightDrawer()}
                       </Drawer>
                     )}
                   </Box>
@@ -239,21 +358,17 @@ const Home = () => {
                       overflowY: "auto",
                     }}
                   >
-                    {messageKey?.map((item, key) => {
-                      if (messageList[item]?.user_id === ID) {
+                    {messageFilter?.map((item, key) => {
+                      if (item?.user_id === uuid) {
                         return (
                           <div className="chat chat-end mt-2 mb-2" key={key}>
-                            <div className="chat-bubble">
-                              {messageList[item]?.text}
-                            </div>
+                            <div className="chat-bubble">{item?.text}</div>
                           </div>
                         );
                       } else {
                         return (
                           <div className="chat chat-start mt-4 mb-2" key={key}>
-                            <div className="chat-bubble">
-                              {messageList[item]?.text}
-                            </div>
+                            <div className="chat-bubble">{item?.text}</div>
                           </div>
                         );
                       }
