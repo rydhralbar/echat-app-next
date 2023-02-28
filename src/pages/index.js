@@ -161,16 +161,33 @@ const Home = () => {
   const leftDrawer = () => (
     <div style={{ width: 250 }}>
       {leftData.map((item, key) => {
-        <ListItem
-          button
-          key={key}
-          onClick={() => {
-            alert("Features not yet developed");
-          }}
-        >
-          <ListItemIcon>{item.icon}</ListItemIcon>
-          <ListItemText primary={item.name} />
-        </ListItem>;
+        {
+          return item?.name === "Logout" ? (
+            <Link href="/auth/logout">
+              <ListItem
+                button
+                key={key}
+                onClick={() => {
+                  alert("Features not yet developed");
+                }}
+              >
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.name} />
+              </ListItem>
+            </Link>
+          ) : (
+            <ListItem
+              button
+              key={key}
+              onClick={() => {
+                alert("Features not yet developed");
+              }}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.name} />
+            </ListItem>
+          );
+        }
       })}
     </div>
   );
