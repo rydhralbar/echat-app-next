@@ -1,8 +1,19 @@
 /* eslint-disable @next/next/no-img-element */
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const Register = () => {
+  const router = useRouter();
+
+  useEffect(() => {
+    const isLogin = localStorage.getItem("user");
+    if (isLogin) {
+      router.replace("/");
+    }
+  }, []);
+
   return (
     <>
       <Head>

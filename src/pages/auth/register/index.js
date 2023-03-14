@@ -29,6 +29,11 @@ const Register = () => {
   const router = useRouter();
 
   useEffect(() => {
+    const isLogin = localStorage.getItem("user");
+    if (isLogin) {
+      router.replace("/");
+    }
+
     useDb.getData("users", (snapshot) => {
       const data = snapshot.val();
 

@@ -36,22 +36,31 @@ const Logout = () => {
       // dispatch(profile.setProfile(null));
       // dispatch(profile.setToken(null));
       localStorage.removeItem("user");
-      // router.replace("/auth");
+      router.replace("/auth");
     }, 1500);
   }, []);
 
   return (
-    <div>
-      <div
-        style={{ display: "flex", justifyContent: "center", marginTop: "40vh" }}
-      >
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        height: "100vh",
+        alignItems: "center",
+      }}
+    >
+      <div>
+        <div>
+          <img
+            src="/images/echat-logo.png"
+            alt="echat"
+            style={{ width: "95px", margin: "auto", marginBottom: "50px" }}
+          />
+        </div>
+        <div>
+          <progress className="progress w-56"></progress>
         </div>
       </div>
-      <h1 style={{ display: "flex", justifyContent: "center" }}>
-        Please wait...
-      </h1>
     </div>
   );
 };

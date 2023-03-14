@@ -5,12 +5,12 @@ import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAV-kZywGr0wMz1_auAdoEXmJoyEq9h70",
-  authDomain: process.env.NEXT_APP_AUTH_DOMAIN,
-  projectId: process.env.NEXT_APP_PROJECT_ID,
-  storageBucket: process.env.NEXT_APP_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_APP_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_APP_APP_ID,
-  measurementId: process.env.NEXT_APP_MEASUREMENT_ID,
+  authDomain: "realtime-echat.firebaseapp.com",
+  projectId: "realtime-echat",
+  storageBucket: "realtime-echat.appspot.com",
+  messagingSenderId: "746927409049",
+  appId: "1:746927409049:web:f4410601a26ce6a1163508",
+  measurementId: "G-9SP8K841RJ",
   databaseURL:
     "https://realtime-echat-default-rtdb.asia-southeast1.firebasedatabase.app/",
 };

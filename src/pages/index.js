@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
+import EmojiPicker from "emoji-picker-react";
 import styles from "@/styles/pages/Home.module.scss";
 import {
   Grid,
@@ -18,18 +19,31 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import DeleteIcon from "@mui/icons-material/Delete";
 import LogoutIcon from "@mui/icons-material/Logout";
+import InfoIcon from "@mui/icons-material/Info";
+import VideocamIcon from "@mui/icons-material/Videocam";
 import BlockIcon from "@mui/icons-material/Block";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 import PersonIcon from "@mui/icons-material/Person";
-import FlagIcon from "@mui/icons-material/Flag";
+import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import KeyboardVoiceIcon from "@mui/icons-material/KeyboardVoice";
 import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash";
 import ImageIcon from "@mui/icons-material/Image";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import MyLocationIcon from "@mui/icons-material/MyLocation";
 import LanguageIcon from "@mui/icons-material/Language";
 import HelpIcon from "@mui/icons-material/Help";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
+import StarIcon from "@mui/icons-material/Star";
+import CallIcon from "@mui/icons-material/Call";
+import AudiotrackIcon from "@mui/icons-material/Audiotrack";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import CollectionsIcon from "@mui/icons-material/Collections";
 import SettingsIcon from "@mui/icons-material/Settings";
 import GroupIcon from "@mui/icons-material/Group";
+import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
 import { Container } from "@mui/system";
 import { MdArrowBack } from "react-icons/md";
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -42,11 +56,11 @@ import { ConstructionOutlined } from "@mui/icons-material";
 const rightData = [
   { name: "Change wallpaper", icon: <ImageIcon /> },
   { name: "Add to group", icon: <GroupAddIcon /> },
-  { name: "Mute notification", icon: <NotificationsOffIcon /> },
+  { name: "Starred messages", icon: <StarIcon /> },
   { name: "Clear chat", icon: <DeleteIcon /> },
   { name: "Restore deleted chat", icon: <RestoreFromTrashIcon /> },
   { name: "Block chat", icon: <BlockIcon /> },
-  { name: "Report user", icon: <FlagIcon /> },
+  { name: "Report user", icon: <ThumbDownIcon /> },
 ];
 
 const leftData = [
@@ -57,6 +71,15 @@ const leftData = [
   { name: "Settings", icon: <SettingsIcon /> },
   { name: "Invite a friend", icon: <GroupIcon /> },
   { name: "Logout", icon: <LogoutIcon /> },
+  { name: "About eChat", icon: <InfoIcon /> },
+];
+
+const bottomData = [
+  { name: "Document", icon: <InsertDriveFileIcon /> },
+  { name: "Audio", icon: <AudiotrackIcon /> },
+  { name: "Location", icon: <MyLocationIcon /> },
+  { name: "Gallery", icon: <CollectionsIcon /> },
+  { name: "Contact", icon: <PermContactCalendarIcon /> },
 ];
 
 const ID = new Date().getTime();
@@ -66,6 +89,7 @@ const Home = () => {
   const [uuid, setUuid] = useState("");
   const [isClickedChat, setIsClickedChat] = useState(false);
   const [isClickedDots, setIsClickedDots] = useState(false);
+  const [isClickedAttach, setIsClickedAttach] = useState(false);
   const [isClickedProfile, setIsClickedProfile] = useState(false);
   const [selectedChat, setSelectedChat] = useState(false);
   const [keyword, setKeyword] = useState("");
@@ -74,6 +98,8 @@ const Home = () => {
   const [messageFilter, setMessageFilter] = useState([]);
   const [usersList, setUsersList] = useState({});
   const [usersKey, setUsersKey] = useState([]);
+  const [isClickedEmoji, setIsClickedEmoji] = useState(false);
+  const [isMute, setIsMute] = useState(false);
 
   const router = useRouter();
   // const selector = useSelector((state) => state.profile);
@@ -118,7 +144,7 @@ const Home = () => {
           timestamp: new Date().getTime(),
           user_id: uuid,
           photo: "",
-          sender: "Albar",
+          sender: uuid,
           target_id: selectedChat,
         },
       },
@@ -138,6 +164,7 @@ const Home = () => {
       }
     });
 
+    setIsClickedEmoji(false);
     setKeyword("");
   };
 
@@ -164,13 +191,7 @@ const Home = () => {
         {
           return item?.name === "Logout" ? (
             <Link href="/auth/logout">
-              <ListItem
-                button
-                key={key}
-                onClick={() => {
-                  alert("Features not yet developed");
-                }}
-              >
+              <ListItem button key={key}>
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.name} />
               </ListItem>
@@ -189,6 +210,28 @@ const Home = () => {
           );
         }
       })}
+    </div>
+  );
+
+  console.log("sender", messageFilter?.[0]?.sender, "selected", selectedChat);
+  console.log("target", messageFilter?.[0]?.target_id, "uuid", uuid);
+
+  console.log(messageFilter);
+
+  const bottomDrawer = () => (
+    <div style={{ width: 250 }}>
+      {bottomData.map((item, key) => (
+        <ListItem
+          button
+          key={key}
+          onClick={() => {
+            alert("Features not yet developed");
+          }}
+        >
+          <ListItemIcon>{item.icon}</ListItemIcon>
+          <ListItemText primary={item.name} />
+        </ListItem>
+      ))}
     </div>
   );
 
@@ -352,6 +395,30 @@ const Home = () => {
                           : "Offline"}
                       </Typography>
                     </div>
+                    {!isMute ? (
+                      <NotificationsIcon
+                        className={styles.notifIcon}
+                        onClick={() => setIsMute(true)}
+                      />
+                    ) : (
+                      <NotificationsOffIcon
+                        className={styles.notifIcon}
+                        onClick={() => setIsMute(false)}
+                      />
+                    )}
+
+                    <CallIcon
+                      className={styles.callIcon}
+                      onClick={() => {
+                        alert("Features not yet developed");
+                      }}
+                    />
+                    <VideocamIcon
+                      className={styles.vidcallIcon}
+                      onClick={() => {
+                        alert("Features not yet developed");
+                      }}
+                    />
                     <BsThreeDotsVertical
                       className={styles.threeDotsRightSide}
                       onClick={() => setIsClickedDots(true)}
@@ -376,13 +443,19 @@ const Home = () => {
                     }}
                   >
                     {messageFilter?.map((item, key) => {
-                      if (item?.user_id === uuid) {
+                      if (
+                        item.sender === uuid &&
+                        item.target_id === selectedChat
+                      ) {
                         return (
                           <div className="chat chat-end mt-2 mb-2" key={key}>
                             <div className="chat-bubble">{item?.text}</div>
                           </div>
                         );
-                      } else {
+                      } else if (
+                        item?.sender === selectedChat &&
+                        item?.target_id === uuid
+                      ) {
                         return (
                           <div className="chat chat-start mt-4 mb-2" key={key}>
                             <div className="chat-bubble">{item?.text}</div>
@@ -393,9 +466,17 @@ const Home = () => {
                   </Box>
                 </Box>
                 <Box className={styles.sendfield}>
+                  {isClickedEmoji && (
+                    <Box position="fixed" zIndex={99999} bottom="10vh">
+                      <EmojiPicker
+                        onEmojiClick={(e) => {
+                          setKeyword(`${keyword} ${e.emoji}`);
+                        }}
+                      />
+                    </Box>
+                  )}
                   <TextField
                     id="outlined-basic"
-                    placeholder="Type your message..."
                     variant="outlined"
                     fullWidth
                     onChange={(e) => setKeyword(e.target.value)}
@@ -406,16 +487,60 @@ const Home = () => {
                     }}
                     value={keyword}
                     InputProps={{
+                      startAdornment: (
+                        <InputAdornment
+                          sx={{ cursor: "pointer" }}
+                          position="start"
+                        >
+                          <EmojiEmotionsIcon
+                            onClick={() => setIsClickedEmoji(!isClickedEmoji)}
+                          />
+                          <KeyboardVoiceIcon
+                            className="ms-3"
+                            onClick={() => {
+                              alert("Features not yet developed");
+                            }}
+                          />
+                        </InputAdornment>
+                      ),
                       endAdornment: (
                         <InputAdornment
                           sx={{ cursor: "pointer" }}
                           position="start"
-                          onClick={sendMessage}
                         >
-                          <SendRoundedIcon />
+                          <AttachFileIcon
+                            className="me-4"
+                            onClick={() => setIsClickedAttach(true)}
+                          />
+                          {isClickedAttach && (
+                            <Drawer
+                              open={open}
+                              anchor={"bottom"}
+                              onClose={() => setIsClickedAttach(false)}
+                              sx={{
+                                "& .MuiDrawer-paperAnchorBottom": {
+                                  width: "67vw",
+                                  marginLeft: "33.35%",
+                                },
+                                "& .MuiListItem-button": {
+                                  width: "67vw",
+                                },
+                              }}
+                            >
+                              {bottomDrawer()}
+                            </Drawer>
+                          )}
+                          <CameraAltIcon
+                            className="me-4"
+                            onClick={() => {
+                              alert("Features not yet developed");
+                            }}
+                          />
+                          <SendRoundedIcon onClick={sendMessage} />
                         </InputAdornment>
                       ),
                     }}
+                    placeholder="Type your message..."
                   />
                 </Box>
               </React.Fragment>
