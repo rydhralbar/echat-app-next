@@ -12,7 +12,7 @@ const Register = () => {
     if (isLogin) {
       router.replace("/");
     }
-  }, []);
+  }, [router]);
 
   return (
     <>

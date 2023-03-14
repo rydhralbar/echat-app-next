@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import EmojiPicker from "emoji-picker-react";
@@ -132,7 +133,7 @@ const Home = () => {
         }
       });
     }
-  }, [selectedChat]);
+  }, [selectedChat, router, uuid]);
 
   const sendMessage = () => {
     useDb.sendData("messages", {
@@ -213,11 +214,6 @@ const Home = () => {
     </div>
   );
 
-  console.log("sender", messageFilter?.[0]?.sender, "selected", selectedChat);
-  console.log("target", messageFilter?.[0]?.target_id, "uuid", uuid);
-
-  console.log(messageFilter);
-
   const bottomDrawer = () => (
     <div style={{ width: 250 }}>
       {bottomData.map((item, key) => (
@@ -282,7 +278,7 @@ const Home = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <img src="/images/search.svg" />
+                      <img src="/images/search.svg" alt="search" />
                     </InputAdornment>
                   ),
                 }}

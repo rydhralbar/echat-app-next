@@ -41,7 +41,7 @@ const Register = () => {
         setUsersList(data);
       }
     });
-  }, []);
+  }, [router]);
 
   const registerManual = () => {
     setIsLoading(true);

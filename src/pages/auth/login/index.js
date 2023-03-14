@@ -43,7 +43,7 @@ const Login = () => {
         setUsersList(data);
       }
     });
-  }, []);
+  }, [router]);
 
   const loginManual = () => {
     setIsLoading(true);
