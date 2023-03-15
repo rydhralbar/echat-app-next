@@ -52,7 +52,8 @@ import * as useDb from "@/utils/firebaseDb";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { ConstructionOutlined } from "@mui/icons-material";
+import Swal from "sweetalert2";
+import { getCookie } from "cookies-next";
 
 const rightData = [
   { name: "Change wallpaper", icon: <ImageIcon /> },
@@ -65,14 +66,14 @@ const rightData = [
 ];
 
 const leftData = [
-  { name: "Profile", icon: <PersonIcon /> },
-  { name: "Notification", icon: <NotificationsIcon /> },
-  { name: "Web language", icon: <LanguageIcon /> },
-  { name: "Help", icon: <HelpIcon /> },
-  { name: "Settings", icon: <SettingsIcon /> },
-  { name: "Invite a friend", icon: <GroupIcon /> },
-  { name: "Logout", icon: <LogoutIcon /> },
-  { name: "About eChat", icon: <InfoIcon /> },
+  { name: "Profile", icon: <PersonIcon />, slug: "/profile" },
+  { name: "Notification", icon: <NotificationsIcon />, slug: "#" },
+  { name: "Web language", icon: <LanguageIcon />, slug: "#" },
+  { name: "Help", icon: <HelpIcon />, slug: "#" },
+  { name: "Settings", icon: <SettingsIcon />, slug: "#" },
+  { name: "Invite a friend", icon: <GroupIcon />, slug: "#" },
+  { name: "Logout", icon: <LogoutIcon />, slug: "/auth/logout" },
+  { name: "About eChat", icon: <InfoIcon />, slug: "#" },
 ];
 
 const bottomData = [
@@ -106,14 +107,14 @@ const Home = () => {
   // const selector = useSelector((state) => state.profile);
 
   useEffect(() => {
-    const profile = JSON.parse(localStorage.getItem("user"));
-    if (!localStorage.getItem("user")) {
+    if (!getCookie("user")) {
       router.replace("/auth");
     } else {
-      const uuidProfile = JSON.parse(localStorage.getItem("user")).uid;
+      const user = JSON.parse(getCookie("user"));
+      const uuidProfile = JSON.parse(getCookie("user")).uid;
 
       setUuid(uuidProfile);
-      setProfile(profile);
+      setProfile(user);
 
       useDb.getData("users", (snapshot) => {
         const data = snapshot.val();
@@ -190,24 +191,20 @@ const Home = () => {
     <div style={{ width: 250 }}>
       {leftData.map((item, key) => {
         {
-          return item?.name === "Logout" ? (
-            <Link href="/auth/logout">
+          return item?.slug === "#" ? (
+            <Link href={`${item?.slug}`} onClick={() => alertButton()}>
               <ListItem button key={key}>
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.name} />
               </ListItem>
             </Link>
           ) : (
-            <ListItem
-              button
-              key={key}
-              onClick={() => {
-                alert("Features not yet developed");
-              }}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.name} />
-            </ListItem>
+            <Link href={`${item?.slug}`}>
+              <ListItem button key={key}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.name} />
+              </ListItem>
+            </Link>
           );
         }
       })}
@@ -230,6 +227,16 @@ const Home = () => {
       ))}
     </div>
   );
+
+  const alertButton = () => {
+    Swal.fire({
+      icon: "warning",
+      title: "Oops",
+      text: "Features not yet developed!",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#B30000",
+    });
+  };
 
   return (
     <>
@@ -405,9 +412,7 @@ const Home = () => {
 
                     <CallIcon
                       className={styles.callIcon}
-                      onClick={() => {
-                        alert("Features not yet developed");
-                      }}
+                      onClick={() => alertButton()}
                     />
                     <VideocamIcon
                       className={styles.vidcallIcon}

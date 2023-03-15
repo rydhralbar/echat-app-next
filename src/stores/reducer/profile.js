@@ -1,23 +1,24 @@
-// import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
-// const initialState = {
-//   profile: null,
-//   token: null,
-// };
+const initialState = {
+  profile: null,
+  token: null,
+  isLogin: false,
+};
 
-// export const profileSlice = createSlice({
-//   name: "profile",
-//   initialState,
-//   reducers: {
-//     setProfile: (state, payload) => {
-//       state.profile = payload;
-//     },
-//     setToken: (state, payload) => {
-//       state.token = payload;
-//     },
-//   },
-// });
+export const profileSlice = createSlice({
+  name: "profile",
+  initialState,
+  reducers: {
+    setProfile: (state, payload) => {
+      state.profile = payload;
+    },
+    setIsLogin: (state, payload) => {
+      state.isLogin = payload;
+    },
+  },
+});
 
-// export const { setProfile, setToken } = profileSlice.actions;
+export const { setProfile, setIsLogin } = profileSlice.actions;
 
-// export default profileSlice.reducer;
+export default profileSlice.reducer;

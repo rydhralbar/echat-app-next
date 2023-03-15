@@ -13,6 +13,7 @@ import {
 import { auth } from "@/utils/firebase";
 import { useEffect } from "react";
 import * as useDb from "@/utils/firebaseDb";
+import { getCookie } from "cookies-next";
 
 const provider = new GoogleAuthProvider();
 
@@ -29,7 +30,7 @@ const Register = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const isLogin = localStorage.getItem("user");
+    const isLogin = getCookie("user");
     if (isLogin) {
       router.replace("/");
     }

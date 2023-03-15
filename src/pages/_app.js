@@ -7,7 +7,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { persistStore } from "redux-persist";
 
 const App = ({ Component, pageProps }) => {
-  // let persistor = persistStore(store);
+  let persistor = persistStore(store);
   return (
     <>
       <Head />
@@ -16,11 +16,11 @@ const App = ({ Component, pageProps }) => {
         integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
         crossOrigin="anonymous"
       />
-      {/* <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}> */}
-      <Component {...pageProps} />
-      {/* </PersistGate>
-      </Provider> */}
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <Component {...pageProps} />
+        </PersistGate>
+      </Provider>
     </>
   );
 };

@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import * as profileReducer from "@/stores/reducer/profile";
 import * as useDb from "@/utils/firebaseDb";
 import { auth } from "@/utils/firebase";
+import { setCookie, getCookie } from "cookies-next";
 
 const provider = new GoogleAuthProvider();
 
@@ -28,11 +29,11 @@ const Login = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   const router = useRouter();
-  // const dispatch = useDispatch();
-  // const selector = useSelector((state) => state.profile);
+  const dispatch = useDispatch();
+  const selector = useSelector((state) => state.profile);
 
   useEffect(() => {
-    const isLogin = localStorage.getItem("user");
+    const isLogin = getCookie("user");
     if (isLogin) {
       router.replace("/");
     }
@@ -62,8 +63,9 @@ const Login = () => {
         });
 
         setIsError(false);
-        localStorage.setItem("user", JSON.stringify(user));
-        // dispatch(profileReducer.setProfile(JSON.stringify(user)));
+        setCookie("user", JSON.stringify(user));
+        dispatch(profileReducer.setProfile(JSON.stringify(user)));
+        dispatch(profileReducer.setIsLogin(true));
 
         setIsSuccess(true);
         setTimeout(() => {
@@ -91,7 +93,6 @@ const Login = () => {
         setIsLoading(false);
         setIsError(false);
 
-        // const token = credential?.accessToken;
         const user = result?.user;
 
         useDb.sendData("users", {
@@ -104,8 +105,11 @@ const Login = () => {
           },
         });
 
-        // dispatch(profileReducer.setProfile(JSON.stringify(user)));
-        localStorage.setItem("user", JSON.stringify(user));
+        dispatch(profileReducer.setProfile(JSON.stringify(user)));
+        dispatch(profileReducer.setIsLogin(true));
+
+        setCookie("user", JSON.stringify(user));
+
         setIsSuccess(true);
         setTimeout(() => {
           router.replace("/");
@@ -143,7 +147,7 @@ const Login = () => {
               <div>
                 <MdArrowBack
                   onClick={() => router.back()}
-                  style={{ width: "25px", height: "25px" }}
+                  style={{ width: "25px", height: "25px", cursor: "pointer" }}
                 />
                 <h3
                   className="text-center"
