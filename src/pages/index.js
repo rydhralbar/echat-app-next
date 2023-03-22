@@ -35,6 +35,7 @@ import MyLocationIcon from "@mui/icons-material/MyLocation";
 import LanguageIcon from "@mui/icons-material/Language";
 import HelpIcon from "@mui/icons-material/Help";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import CheckIcon from "@mui/icons-material/Check";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
 import StarIcon from "@mui/icons-material/Star";
 import CallIcon from "@mui/icons-material/Call";
@@ -49,6 +50,7 @@ import { Container } from "@mui/system";
 import { MdArrowBack } from "react-icons/md";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import * as useDb from "@/utils/firebaseDb";
+import EditIcon from "@mui/icons-material/Edit";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -87,6 +89,8 @@ const bottomData = [
 const ID = new Date().getTime();
 
 const Home = () => {
+  const [editName, setEditName] = useState("");
+  const [editNameInput, setEditNameInput] = useState(false);
   const [profile, setProfile] = useState(null);
   const [uuid, setUuid] = useState("");
   const [isClickedChat, setIsClickedChat] = useState(false);
@@ -102,16 +106,23 @@ const Home = () => {
   const [usersKey, setUsersKey] = useState([]);
   const [isClickedEmoji, setIsClickedEmoji] = useState(false);
   const [isMute, setIsMute] = useState(false);
+  const [userData, setUserData] = useState({});
 
   const router = useRouter();
-  // const selector = useSelector((state) => state.profile);
+  const selector = useSelector((state) => state.profile);
+  console.log("usersList", usersList);
+  console.log("usersKey", usersKey);
+  console.log("messageList", messageList);
+  console.log("messageKey", messageKey);
+  // console.log("uuid", uuid);
 
   useEffect(() => {
-    if (!getCookie("user")) {
+    if (!getCookie("user") || !selector?.isLogin?.payload) {
       router.replace("/auth");
     } else {
       const user = JSON.parse(getCookie("user"));
       const uuidProfile = JSON.parse(getCookie("user")).uid;
+      console.log("uuid", uuidProfile);
 
       setUuid(uuidProfile);
       setProfile(user);
@@ -120,8 +131,16 @@ const Home = () => {
         const data = snapshot.val();
 
         if (data) {
+          const dataWithoutUser = Object.keys(data).filter(
+            (item) => item !== uuid
+          );
           setUsersList(data);
-          setUsersKey(Object.keys(data)?.filter((item) => item !== uuid));
+          setUsersKey(dataWithoutUser);
+
+          const dataUser = usersList[uuid];
+          console.log("userData", dataUser);
+
+          setUserData(dataUser);
         }
       });
 
@@ -134,7 +153,26 @@ const Home = () => {
         }
       });
     }
-  }, [selectedChat, router, uuid]);
+  }, []);
+
+  useEffect(() => {
+    const uuidProfile = JSON.parse(getCookie("user")).uid;
+    useDb.getData("users", (snapshot) => {
+      const data = snapshot.val();
+
+      if (data) {
+        const dataWithoutUser = Object.keys(data).filter(
+          (item) => item !== uuidProfile
+        );
+        setUsersList(data);
+        setUsersKey(dataWithoutUser);
+
+        const dataUser = usersList[uuidProfile];
+
+        setUserData(dataUser);
+      }
+    });
+  }, [usersList]);
 
   const sendMessage = () => {
     useDb.sendData("messages", {
@@ -170,6 +208,20 @@ const Home = () => {
     setKeyword("");
   };
 
+  const editProfilePhoto = () => {};
+
+  const editProfileName = () => {
+    if (Object.keys(usersList)?.length > 0) {
+      const changeName = {
+        ...usersList[uuid],
+        ...{
+          name: editName,
+        },
+      };
+      useDb.sendData(`users/${uuid}`, changeName);
+    }
+  };
+
   const rightDrawer = () => (
     <div style={{ width: 250 }}>
       {rightData.map((item, key) => (
@@ -177,7 +229,7 @@ const Home = () => {
           button
           key={key}
           onClick={() => {
-            alert("Features not yet developed");
+            alertButton();
           }}
         >
           <ListItemIcon>{item.icon}</ListItemIcon>
@@ -218,7 +270,7 @@ const Home = () => {
           button
           key={key}
           onClick={() => {
-            alert("Features not yet developed");
+            alertButton();
           }}
         >
           <ListItemIcon>{item.icon}</ListItemIcon>
@@ -267,13 +319,109 @@ const Home = () => {
                     open={open}
                     anchor={"left"}
                     onClose={() => setIsClickedProfile(false)}
+                    sx={{
+                      "& .MuiDrawer-paperAnchorLeft": {
+                        width: "33.5%",
+                        background: "linear-gradient(#B30000 12%, #FFFFFF 10%)",
+                      },
+                    }}
                   >
-                    {leftDrawer()}
+                    <div>
+                      <div className="flex">
+                        <MdArrowBack
+                          style={{
+                            width: "60px",
+                            height: "25px",
+                            marginTop: "23px",
+                            cursor: "pointer",
+                            color: "white",
+                          }}
+                          onClick={() => setIsClickedProfile(false)}
+                        />
+                        <h5
+                          style={{
+                            fontSize: "23px",
+                            marginTop: "20px",
+                            marginLeft: "5px",
+                            color: "white",
+                          }}
+                        >
+                          Profile
+                        </h5>
+                      </div>
+                      <div className="flex justify-center">
+                        <div>
+                          <div className="flex justify-center mt-24">
+                            <Avatar
+                              alt={userData?.name}
+                              src={userData?.photo}
+                              // src={`${
+                              //   selector?.profile?.payload?.photoURL
+                              //     ? selector?.profile?.payload?.photoURL
+                              //     : "/static/images/avatar/1.jpg"
+                              // }`}
+                              sx={{
+                                width: "100px",
+                                height: "100px",
+                                "& .css-1pqm26d-MuiAvatar-img": {
+                                  height: "100%",
+                                },
+                                marginBottom: "30px",
+                              }}
+                            />
+                          </div>
+                          <div className="flex">
+                            <input
+                              type="text"
+                              // placeholder={profile?.displayName}
+                              className="input input-bordered input-secondary w-full max-w-xs"
+                              style={{ width: "290px", color: "white" }}
+                              disabled={!editNameInput}
+                              defaultValue={userData?.name}
+                              onChange={(e) => setEditName(e.target.value)}
+                            />
+                            {!editNameInput && (
+                              <EditIcon
+                                sx={{
+                                  margin: "auto",
+                                  marginLeft: "17px",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => setEditNameInput(true)}
+                              />
+                            )}
+                            {editNameInput && (
+                              <CheckIcon
+                                sx={{
+                                  margin: "auto",
+                                  marginLeft: "17px",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => {
+                                  editProfileName();
+                                  setEditNameInput(false);
+                                }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </Drawer>
                 )}
                 <Typography variant="h2" className={styles.textLogo}>
                   eChat
                 </Typography>
+                <LogoutIcon
+                  style={{
+                    margin: "auto",
+                    marginLeft: "57%",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    router.replace("/auth/logout");
+                  }}
+                />
                 {/* <BsThreeDotsVertical onClick={() => setIsClickedDots(true)} /> */}
               </Container>
               <TextField
@@ -298,7 +446,7 @@ const Home = () => {
                     alignItems="flex-start"
                     sx={{ paddingLeft: "0px" }}
                     button
-                    selected={selectedChat === key}
+                    selected={selectedChat === usersList[item]?.user_id}
                     key={key}
                     onClick={() => {
                       setIsClickedChat(true);
@@ -327,6 +475,11 @@ const Home = () => {
                     </ListItemAvatar>
                     <ListItemText
                       primary={usersList[item]?.name}
+                      sx={{
+                        "& .css-10hburv-MuiTypography-root": {
+                          color: "black",
+                        },
+                      }}
                       secondary={
                         <Typography
                           sx={{
@@ -416,9 +569,7 @@ const Home = () => {
                     />
                     <VideocamIcon
                       className={styles.vidcallIcon}
-                      onClick={() => {
-                        alert("Features not yet developed");
-                      }}
+                      onClick={() => alertButton()}
                     />
                     <BsThreeDotsVertical
                       className={styles.threeDotsRightSide}
@@ -497,9 +648,9 @@ const Home = () => {
                             onClick={() => setIsClickedEmoji(!isClickedEmoji)}
                           />
                           <KeyboardVoiceIcon
-                            className="ms-3"
+                            className="ml-5 mr-3"
                             onClick={() => {
-                              alert("Features not yet developed");
+                              alertButton();
                             }}
                           />
                         </InputAdornment>
@@ -510,7 +661,7 @@ const Home = () => {
                           position="start"
                         >
                           <AttachFileIcon
-                            className="me-4"
+                            className="mr-6"
                             onClick={() => setIsClickedAttach(true)}
                           />
                           {isClickedAttach && (
@@ -532,9 +683,9 @@ const Home = () => {
                             </Drawer>
                           )}
                           <CameraAltIcon
-                            className="me-4"
+                            className="mr-6"
                             onClick={() => {
-                              alert("Features not yet developed");
+                              alertButton();
                             }}
                           />
                           <SendRoundedIcon onClick={sendMessage} />

@@ -31,10 +31,11 @@ const Login = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const selector = useSelector((state) => state.profile);
+  const isLoginRedux = selector?.isLogin?.payload;
 
   useEffect(() => {
     const isLogin = getCookie("user");
-    if (isLogin) {
+    if (isLogin && isLoginRedux) {
       router.replace("/");
     }
     useDb.getData("users", (snapshot) => {
@@ -113,7 +114,7 @@ const Login = () => {
         setIsSuccess(true);
         setTimeout(() => {
           router.replace("/");
-        }, 1000);
+        }, 700);
       })
       .catch((error) => {
         setIsLoading(false);
@@ -142,20 +143,25 @@ const Login = () => {
 
       <main>
         <div className="container">
-          <div className={`d-flex justify-content-center ${styles.allForm}`}>
+          <div className={`flex justify-center ${styles.allForm}`}>
             <div className={styles.wrapper}>
               <div>
                 <MdArrowBack
                   onClick={() => router.back()}
-                  style={{ width: "25px", height: "25px", cursor: "pointer" }}
+                  className="cursor-pointer"
+                  style={{ width: "25px", height: "25px", color: "black" }}
                 />
                 <h3
                   className="text-center"
-                  style={{ fontSize: "30px", marginBottom: "20px" }}
+                  style={{
+                    fontSize: "30px",
+                    marginBottom: "20px",
+                    color: "black",
+                  }}
                 >
                   Login
                 </h3>
-                <hr className="mb-3" />
+                <hr className="mb-5" />
               </div>
 
               {isSuccess && (
@@ -201,12 +207,12 @@ const Login = () => {
               )}
 
               <div>
-                <div className="mb-3">
+                <div className="mb-3 mt-5">
                   <label className="form-label">Email address</label>
                   <input
-                    type="text"
-                    className="form-control"
+                    type="email"
                     placeholder="Type your email"
+                    className="input input-bordered input-secondary w-full"
                     onChange={(e) => {
                       if (e.target.value === "") {
                         setErrorMsg("Email cannot be empty");
@@ -220,8 +226,8 @@ const Login = () => {
                   <label className="form-label">Password</label>
                   <input
                     type="password"
-                    className="form-control"
-                    placeholder="Type your new password"
+                    placeholder="Type your password"
+                    className="input input-bordered input-secondary w-full"
                     onChange={(e) => setPassword(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
@@ -233,7 +239,7 @@ const Login = () => {
                 <div>
                   <button
                     type="submit"
-                    className={`btn btn-primary ${styles.loginButton}`}
+                    className={`btn btn-primary mt-5 ${styles.loginButton}`}
                     onClick={loginManual}
                     disabled={isLoading}
                   >

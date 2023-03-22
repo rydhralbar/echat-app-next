@@ -14,6 +14,7 @@ import { auth } from "@/utils/firebase";
 import { useEffect } from "react";
 import * as useDb from "@/utils/firebaseDb";
 import { getCookie } from "cookies-next";
+import { useSelector } from "react-redux";
 
 const provider = new GoogleAuthProvider();
 
@@ -28,10 +29,13 @@ const Register = () => {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const router = useRouter();
+  const selector = useSelector((state) => state.profile);
+  console.log(selector);
+  const isLoginRedux = selector?.isLogin?.payload;
 
   useEffect(() => {
     const isLogin = getCookie("user");
-    if (isLogin) {
+    if (isLogin && isLoginRedux) {
       router.replace("/");
     }
 
@@ -59,7 +63,8 @@ const Register = () => {
             verified_email: user?.emailVerified,
             timestamp: new Date().getTime(),
             user_id: user?.uid,
-            photo: user?.photoURL,
+            photo:
+              "https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png",
             name: name,
             is_online: false,
           },
@@ -137,20 +142,29 @@ const Register = () => {
 
       <main>
         <div className="container">
-          <div className={`d-flex justify-content-center ${styles.allForm}`}>
+          <div className={`flex justify-center ${styles.allForm}`}>
             <div className={styles.wrapper}>
               <div>
                 <MdArrowBack
                   onClick={() => router.back()}
-                  style={{ width: "25px", height: "25px" }}
+                  className="cursor-pointer"
+                  style={{
+                    width: "25px",
+                    height: "25px",
+                    color: "black",
+                  }}
                 />
                 <h3
                   className="text-center"
-                  style={{ fontSize: "30px", marginBottom: "20px" }}
+                  style={{
+                    fontSize: "30px",
+                    marginBottom: "20px",
+                    color: "black",
+                  }}
                 >
                   Register
                 </h3>
-                <hr className="mb-3" />
+                <hr className="mb-5 color-black" />
               </div>
 
               {isError && (
@@ -198,19 +212,19 @@ const Register = () => {
                 <div className="mt-4 mb-3">
                   <label className="form-label">Name</label>
                   <input
-                    type="email"
-                    className="form-control"
+                    type="text"
                     placeholder="Type your name"
                     onChange={(e) => setName(e.target.value)}
+                    className="input input-bordered input-secondary w-full"
                   />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Email address</label>
                   <input
-                    type="text"
-                    className="form-control"
+                    type="email"
                     placeholder="Type your email"
                     onChange={(e) => setEmail(e.target.value)}
+                    className="input input-bordered input-secondary w-full"
                   />
                 </div>
                 {/* <div className="mb-3">
@@ -221,11 +235,10 @@ const Register = () => {
                     placeholder="Type your phone number"
                   />
                 </div> */}
-                <div className="mb-4">
+                <div className="mb-6">
                   <label className="form-label">Password</label>
                   <input
                     type="password"
-                    className="form-control"
                     placeholder="Type your new password"
                     onChange={(e) => setPassword(e.target.value)}
                     onKeyDown={(e) => {
@@ -233,6 +246,7 @@ const Register = () => {
                         registerManual();
                       }
                     }}
+                    className="input input-bordered input-secondary w-full"
                   />
                 </div>
                 <div>
@@ -244,7 +258,7 @@ const Register = () => {
                   >
                     {isLoading ? "Loading..." : "Register"}
                   </button>
-                  <p className="mt-3 mb-3 text-center">Or register with</p>
+                  <p className="mt-5 mb-5 text-center">Or register with</p>
                   <button
                     type="submit"
                     className={`btn ${styles.googleButton}`}

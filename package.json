@@ -15,7 +15,6 @@
     "@mui/material": "^5.11.13",
     "@next/font": "13.1.6",
     "@reduxjs/toolkit": "^1.9.3",
-    "bootstrap": "^5.2.3",
     "cookies-next": "^2.1.1",
     "daisyui": "^2.51.0",
     "emoji-picker-react": "^4.4.7",

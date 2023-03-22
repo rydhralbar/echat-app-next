@@ -3,13 +3,18 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { getCookie } from "cookies-next";
 
 const Register = () => {
   const router = useRouter();
 
+  const selector = useSelector((state) => state.profile);
+  const isLoginRedux = selector?.isLogin?.payload;
+
   useEffect(() => {
-    const isLogin = localStorage.getItem("user");
-    if (isLogin) {
+    const isLogin = getCookie("user");
+    if (isLogin && isLoginRedux) {
       router.replace("/");
     }
   }, [router]);
@@ -26,7 +31,7 @@ const Register = () => {
       <main>
         <div className="container">
           <div
-            className="d-flex justify-content-center"
+            className="flex justify-center"
             style={{ height: "100vh", alignItems: "center" }}
           >
             <div
@@ -37,7 +42,7 @@ const Register = () => {
                 borderRadius: "8px",
               }}
             >
-              <div className="d-flex justify-content-center">
+              <div className="flex justify-center">
                 <img
                   src="/images/echat-logo.png"
                   style={{ width: "27%" }}
@@ -46,7 +51,7 @@ const Register = () => {
               </div>
               <div>
                 <div>
-                  <h6 className="text-center mt-4">
+                  <h6 className="text-center mt-4 text-black">
                     Welcome to eChat! <br /> Please select an option below
                   </h6>
                 </div>
@@ -60,7 +65,7 @@ const Register = () => {
                       Register
                     </button>
                   </Link>
-                  <p className="text-center mb-3 mt-3">Or</p>
+                  <p className="text-center mb-3 mt-3 text-black">Or</p>
                   <Link href="/auth/login">
                     <button
                       type="submit"

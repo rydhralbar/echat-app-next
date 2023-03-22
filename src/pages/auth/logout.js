@@ -5,38 +5,49 @@ import { useDispatch, useSelector } from "react-redux";
 import * as profile from "@/stores/reducer/profile";
 import { useEffect } from "react";
 import * as useDb from "@/utils/firebaseDb";
+import { deleteCookie } from "cookies-next";
 
 const Logout = () => {
   const [usersList, setUsersList] = useState({});
 
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const router = useRouter();
 
-  // useEffect(() => {
-  //   useDb.getData("users", (snapshot) => {
-  //     const data = snapshot.val();
+  const selector = useSelector((state) => state?.profile);
 
-  //     if (data) {
-  //       setUsersList(data);
-  //     }
-  //   });
+  // console.log("profile", JSON.parse(selector?.profile?.payload));
 
-  //   useDb.sendData("users", {
-  //     ...usersList,
-  //     [user.uid]: {
-  //       ...usersList[user.uid],
-  //       ...{
-  //         is_online: false,
-  //       },
-  //     },
-  //   });
-  // }, []);
+  // console.log("userList", usersList[uidUser]);
 
-  useState(() => {
+  useEffect(() => {
+    useDb.getData("users", (snapshot) => {
+      const data = snapshot.val();
+      // console.log(data);
+
+      if (data) {
+        setUsersList(data);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    const uidUser = JSON.parse(selector?.profile?.payload).uid;
+    if (Object.keys(usersList)?.length > 0) {
+      const logoutUser = {
+        ...usersList[uidUser],
+        ...{
+          is_online: false,
+        },
+      };
+      useDb.sendData(`users/${uidUser}`, logoutUser);
+    }
+  }, [usersList]);
+
+  useEffect(() => {
     setTimeout(() => {
-      // dispatch(profile.setProfile(null));
-      // dispatch(profile.setToken(null));
-      localStorage.removeItem("user");
+      dispatch(profile.setProfile(null));
+      dispatch(profile.setIsLogin(false));
+      deleteCookie("user");
       router.replace("/auth");
     }, 1500);
   }, []);
