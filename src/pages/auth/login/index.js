@@ -245,7 +245,9 @@ const Login = () => {
                   >
                     {isLoading ? "Loading..." : "Login"}
                   </button>
-                  <p className="mt-3 mb-3 text-center">Or login with</p>
+                  <p className="mt-3 mb-3 text-center text-black">
+                    Or login with
+                  </p>
                   <button
                     type="submit"
                     className={`btn ${styles.googleButton}`}

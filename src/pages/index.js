@@ -20,11 +20,9 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import DeleteIcon from "@mui/icons-material/Delete";
 import LogoutIcon from "@mui/icons-material/Logout";
-import InfoIcon from "@mui/icons-material/Info";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import BlockIcon from "@mui/icons-material/Block";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
-import PersonIcon from "@mui/icons-material/Person";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import KeyboardVoiceIcon from "@mui/icons-material/KeyboardVoice";
@@ -32,8 +30,6 @@ import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash";
 import ImageIcon from "@mui/icons-material/Image";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
-import LanguageIcon from "@mui/icons-material/Language";
-import HelpIcon from "@mui/icons-material/Help";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import CheckIcon from "@mui/icons-material/Check";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
@@ -43,9 +39,8 @@ import AudiotrackIcon from "@mui/icons-material/Audiotrack";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import CollectionsIcon from "@mui/icons-material/Collections";
-import SettingsIcon from "@mui/icons-material/Settings";
-import GroupIcon from "@mui/icons-material/Group";
 import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
+import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
 import { Container } from "@mui/system";
 import { MdArrowBack } from "react-icons/md";
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -53,7 +48,6 @@ import * as useDb from "@/utils/firebaseDb";
 import EditIcon from "@mui/icons-material/Edit";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import Link from "next/link";
 import Swal from "sweetalert2";
 import { getCookie } from "cookies-next";
 
@@ -67,17 +61,6 @@ const rightData = [
   { name: "Report user", icon: <ThumbDownIcon /> },
 ];
 
-const leftData = [
-  { name: "Profile", icon: <PersonIcon />, slug: "/profile" },
-  { name: "Notification", icon: <NotificationsIcon />, slug: "#" },
-  { name: "Web language", icon: <LanguageIcon />, slug: "#" },
-  { name: "Help", icon: <HelpIcon />, slug: "#" },
-  { name: "Settings", icon: <SettingsIcon />, slug: "#" },
-  { name: "Invite a friend", icon: <GroupIcon />, slug: "#" },
-  { name: "Logout", icon: <LogoutIcon />, slug: "/auth/logout" },
-  { name: "About eChat", icon: <InfoIcon />, slug: "#" },
-];
-
 const bottomData = [
   { name: "Document", icon: <InsertDriveFileIcon /> },
   { name: "Audio", icon: <AudiotrackIcon /> },
@@ -86,11 +69,11 @@ const bottomData = [
   { name: "Contact", icon: <PermContactCalendarIcon /> },
 ];
 
-const ID = new Date().getTime();
-
 const Home = () => {
   const [editName, setEditName] = useState("");
   const [editNameInput, setEditNameInput] = useState(false);
+  const [editBio, setEditBio] = useState("");
+  const [editBioInput, setEditBioInput] = useState(false);
   const [profile, setProfile] = useState(null);
   const [uuid, setUuid] = useState("");
   const [isClickedChat, setIsClickedChat] = useState(false);
@@ -110,19 +93,16 @@ const Home = () => {
 
   const router = useRouter();
   const selector = useSelector((state) => state.profile);
-  console.log("usersList", usersList);
-  console.log("usersKey", usersKey);
-  console.log("messageList", messageList);
-  console.log("messageKey", messageKey);
-  // console.log("uuid", uuid);
 
   useEffect(() => {
-    if (!getCookie("user") || !selector?.isLogin?.payload) {
+    const checkCookie = getCookie("user");
+    const checkRedux = selector?.isLogin?.payload;
+
+    if (checkCookie === undefined || !checkRedux) {
       router.replace("/auth");
     } else {
       const user = JSON.parse(getCookie("user"));
       const uuidProfile = JSON.parse(getCookie("user")).uid;
-      console.log("uuid", uuidProfile);
 
       setUuid(uuidProfile);
       setProfile(user);
@@ -138,13 +118,12 @@ const Home = () => {
           setUsersKey(dataWithoutUser);
 
           const dataUser = usersList[uuid];
-          console.log("userData", dataUser);
 
           setUserData(dataUser);
         }
       });
 
-      useDb.getData(`messages/user_1`, (snapshot) => {
+      useDb.getData(`messages/users`, (snapshot) => {
         const data = snapshot.val();
 
         if (data) {
@@ -156,18 +135,18 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    const uuidProfile = JSON.parse(getCookie("user")).uid;
+    // const uuidProfile = JSON.parse(getCookie("user")).uid;
     useDb.getData("users", (snapshot) => {
       const data = snapshot.val();
 
       if (data) {
         const dataWithoutUser = Object.keys(data).filter(
-          (item) => item !== uuidProfile
+          (item) => item !== uuid
         );
         setUsersList(data);
         setUsersKey(dataWithoutUser);
 
-        const dataUser = usersList[uuidProfile];
+        const dataUser = usersList[uuid];
 
         setUserData(dataUser);
       }
@@ -176,21 +155,20 @@ const Home = () => {
 
   const sendMessage = () => {
     useDb.sendData("messages", {
-      [`user_1`]: {
+      [`users`]: {
         ...messageList,
         [new Date().getTime()]: {
           text: keyword,
           image: "",
           timestamp: new Date().getTime(),
           user_id: uuid,
-          photo: "",
           sender: uuid,
           target_id: selectedChat,
         },
       },
     });
 
-    useDb.getData(`messages/user_1`, (snapshot) => {
+    useDb.getData(`messages/users`, (snapshot) => {
       const data = snapshot.val();
 
       if (data) {
@@ -211,7 +189,7 @@ const Home = () => {
   const editProfilePhoto = () => {};
 
   const editProfileName = () => {
-    if (Object.keys(usersList)?.length > 0) {
+    if (Object.keys(usersList)?.length > 0 && editName !== "") {
       const changeName = {
         ...usersList[uuid],
         ...{
@@ -219,6 +197,22 @@ const Home = () => {
         },
       };
       useDb.sendData(`users/${uuid}`, changeName);
+
+      setEditNameInput(false);
+    }
+  };
+
+  const editProfileBio = () => {
+    if (Object.keys(usersList)?.length > 0 && editBio !== "") {
+      const changeBio = {
+        ...usersList[uuid],
+        ...{
+          bio: editBio,
+        },
+      };
+      useDb.sendData(`users/${uuid}`, changeBio);
+
+      setEditBioInput(false);
     }
   };
 
@@ -236,30 +230,6 @@ const Home = () => {
           <ListItemText primary={item.name} />
         </ListItem>
       ))}
-    </div>
-  );
-
-  const leftDrawer = () => (
-    <div style={{ width: 250 }}>
-      {leftData.map((item, key) => {
-        {
-          return item?.slug === "#" ? (
-            <Link href={`${item?.slug}`} onClick={() => alertButton()}>
-              <ListItem button key={key}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.name} />
-              </ListItem>
-            </Link>
-          ) : (
-            <Link href={`${item?.slug}`}>
-              <ListItem button key={key}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.name} />
-              </ListItem>
-            </Link>
-          );
-        }
-      })}
     </div>
   );
 
@@ -366,11 +336,19 @@ const Home = () => {
                                 "& .css-1pqm26d-MuiAvatar-img": {
                                   height: "100%",
                                 },
-                                marginBottom: "30px",
+                                marginBottom: "20px",
                               }}
                             />
+                            <EditIcon
+                              sx={{ marginTop: "75px", cursor: "pointer" }}
+                            />
                           </div>
-                          <div className="flex">
+                          <div>
+                            <label className="label">
+                              <span className="label-text text-black">
+                                Your name
+                              </span>
+                            </label>
                             <input
                               type="text"
                               // placeholder={profile?.displayName}
@@ -399,7 +377,44 @@ const Home = () => {
                                 }}
                                 onClick={() => {
                                   editProfileName();
-                                  setEditNameInput(false);
+                                }}
+                              />
+                            )}
+                          </div>
+                          <div className="mt-5">
+                            <label className="label">
+                              <span className="label-text text-black">
+                                Your bio
+                              </span>
+                            </label>
+                            <input
+                              type="text"
+                              // placeholder={profile?.displayName}
+                              className="input input-bordered input-secondary w-full max-w-xs"
+                              style={{ width: "290px", color: "white" }}
+                              disabled={!editBioInput}
+                              defaultValue={userData?.bio}
+                              onChange={(e) => setEditBio(e.target.value)}
+                            />
+                            {!editBioInput && (
+                              <EditIcon
+                                sx={{
+                                  margin: "auto",
+                                  marginLeft: "17px",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => setEditBioInput(true)}
+                              />
+                            )}
+                            {editBioInput && (
+                              <CheckIcon
+                                sx={{
+                                  margin: "auto",
+                                  marginLeft: "17px",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => {
+                                  editProfileBio();
                                 }}
                               />
                             )}
@@ -419,7 +434,7 @@ const Home = () => {
                     cursor: "pointer",
                   }}
                   onClick={() => {
-                    router.replace("/auth/logout");
+                    router.push("/auth/logout");
                   }}
                 />
                 {/* <BsThreeDotsVertical onClick={() => setIsClickedDots(true)} /> */}
@@ -484,14 +499,12 @@ const Home = () => {
                         <Typography
                           sx={{
                             display: "inline",
-                            color: `${
-                              usersList[item]?.is_online ? "#33ff33" : "#808080"
-                            }`,
+                            color: "#808080",
                           }}
                           component="span"
                           variant="body2"
                         >
-                          {usersList[item]?.is_online ? "Online" : "Offline"}
+                          {usersList[item]?.bio}
                         </Typography>
                       }
                     />

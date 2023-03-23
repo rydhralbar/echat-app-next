@@ -67,6 +67,7 @@ const Register = () => {
               "https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png",
             name: name,
             is_online: false,
+            bio: "Hey there! I am using eChat.",
           },
         });
 
@@ -107,6 +108,7 @@ const Register = () => {
             photo: user?.photoURL,
             name: user?.displayName,
             is_online: false,
+            bio: "Hey there! I am using eChat.",
           },
         });
 
@@ -258,7 +260,9 @@ const Register = () => {
                   >
                     {isLoading ? "Loading..." : "Register"}
                   </button>
-                  <p className="mt-5 mb-5 text-center">Or register with</p>
+                  <p className="mt-5 mb-5 text-center text-black">
+                    Or register with
+                  </p>
                   <button
                     type="submit"
                     className={`btn ${styles.googleButton}`}
