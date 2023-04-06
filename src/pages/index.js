@@ -292,7 +292,8 @@ const Home = () => {
                     sx={{
                       "& .MuiDrawer-paperAnchorLeft": {
                         width: "33.5%",
-                        background: "linear-gradient(#B30000 12%, #FFFFFF 10%)",
+                        background:
+                          "linear-gradient(#B30000 12%, rgb(229, 229, 229) 10%)",
                       },
                     }}
                   >
@@ -345,15 +346,12 @@ const Home = () => {
                           </div>
                           <div>
                             <label className="label">
-                              <span className="label-text text-black">
-                                Your name
-                              </span>
+                              <span className="label-text">Your name</span>
                             </label>
                             <input
                               type="text"
                               // placeholder={profile?.displayName}
-                              className="input input-bordered input-secondary w-full max-w-xs"
-                              style={{ width: "290px", color: "white" }}
+                              className={`input input-bordered input-secondary w-full max-w-xs`}
                               disabled={!editNameInput}
                               defaultValue={userData?.name}
                               onChange={(e) => setEditName(e.target.value)}
@@ -383,15 +381,13 @@ const Home = () => {
                           </div>
                           <div className="mt-5">
                             <label className="label">
-                              <span className="label-text text-black">
-                                Your bio
-                              </span>
+                              <span className="label-text">Your bio</span>
                             </label>
                             <input
                               type="text"
                               // placeholder={profile?.displayName}
                               className="input input-bordered input-secondary w-full max-w-xs"
-                              style={{ width: "290px", color: "white" }}
+                              style={{ width: "290px" }}
                               disabled={!editBioInput}
                               defaultValue={userData?.bio}
                               onChange={(e) => setEditBio(e.target.value)}

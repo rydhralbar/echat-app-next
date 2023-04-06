@@ -102,3 +102,16 @@
   margin-left: 38rem;
   margin-top: 10px;
 }
+
+@media (prefers-color-scheme: dark) {
+  .bgProfile {
+    width: "290px";
+    color: "black"
+  }
+}
+@media (prefers-color-scheme: light) {
+  .bgProfile {
+    width: "290px"; 
+    color: "white"
+  }
+}
