@@ -292,8 +292,7 @@ const Home = () => {
                     sx={{
                       "& .MuiDrawer-paperAnchorLeft": {
                         width: "33.5%",
-                        background:
-                          "linear-gradient(#B30000 12%, rgb(229, 229, 229) 10%)",
+                        background: "linear-gradient(#B30000 12%, #FFF1F1 10%)",
                       },
                     }}
                   >
@@ -342,6 +341,7 @@ const Home = () => {
                             />
                             <EditIcon
                               sx={{ marginTop: "75px", cursor: "pointer" }}
+                              onClick={alertButton}
                             />
                           </div>
                           <div>
