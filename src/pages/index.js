@@ -346,12 +346,15 @@ const Home = () => {
                           </div>
                           <div>
                             <label className="label">
-                              <span className="label-text">Your name</span>
+                              <span className="label-text text-black">
+                                Your name
+                              </span>
                             </label>
                             <input
                               type="text"
                               // placeholder={profile?.displayName}
-                              className={`input input-bordered input-secondary w-full max-w-xs`}
+                              className="input input-bordered input-secondary w-full max-w-xs text-gray-500"
+                              style={{ width: "290px" }}
                               disabled={!editNameInput}
                               defaultValue={userData?.name}
                               onChange={(e) => setEditName(e.target.value)}
@@ -381,12 +384,14 @@ const Home = () => {
                           </div>
                           <div className="mt-5">
                             <label className="label">
-                              <span className="label-text">Your bio</span>
+                              <span className="label-text text-black">
+                                Your bio
+                              </span>
                             </label>
                             <input
                               type="text"
                               // placeholder={profile?.displayName}
-                              className="input input-bordered input-secondary w-full max-w-xs"
+                              className="input input-bordered input-secondary w-full max-w-xs text-gray-500"
                               style={{ width: "290px" }}
                               disabled={!editBioInput}
                               defaultValue={userData?.bio}
